@@ -19,7 +19,7 @@ from rest_framework.response import Response
 class GetProductsView(generics.ListAPIView):
     allowed_methods = ["GET"]
     authentication_classes = []
-    paginate_by = 10
+    paginate_by = 20
     model = Product
     queryset = Product.objects.all()
     serializer_class = GetProductsSerializer

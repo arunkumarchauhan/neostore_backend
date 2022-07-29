@@ -1,9 +1,13 @@
 from django.urls import include, path
 
+from order.views import PlaceOrderView, GetOrdersListView, GetOrderDetailView
+
 urlpatterns = [
-    path('order', include("user.urls")),
-    path('order/all', include("product.urls")),
-    path('api/cart/', include("cart.urls"))
+
+    path('all', GetOrdersListView.as_view(), name='get_orders_list'),
+    path('add', PlaceOrderView.as_view(), name='place_order'),
+    path('<int:order_id>', GetOrderDetailView.as_view(), name='get_order_detail'),
+
 
 
     # path('admin/', admin.site.urls),

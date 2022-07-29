@@ -2,13 +2,12 @@
 
 # Create your views here.
 from functools import partial
+from turtle import update
 from rest_framework.views import APIView
 from cart.serializers import CartItemSerializer
 from cart.forms import ChangeProductQuantityForm, AddCartItemForm
 from cart.serializers import GetCartSerializer, CartItemListSerializer
-from product.serializers import CreateProductCategorySerializer
 from user.models import User
-from product.serializers import GetProductsSerializer
 from .models import *
 from rest_framework import generics
 from product.models import Product
@@ -18,6 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers, viewsets, mixins, status
 
 from rest_framework.response import Response
+from django.db.models import Count, F, Value
 
 
 class AddToCartView(APIView):
@@ -39,9 +39,25 @@ class AddToCartView(APIView):
             except Cart.DoesNotExist:
                 cart = Cart(user=user)
                 cart.save()
-            serializer.save(cart=cart)
+            product_id = serializer.validated_data.get(
+                'product')
+            product_in_cart_query = CartItem.objects.filter(
+                product_id=product_id, cart__user_id=request.user.id, cart__bought=False)
+            # If adding product is alredy in cart
+            if product_in_cart_query.exists():
+                last_item_in_cart = product_in_cart_query.last()
+                last_item_in_cart.cart = cart
+                last_item_in_cart.quantity = last_item_in_cart.quantity+1
+                last_item_in_cart.save(update_fields=['quantity', 'cart'])
+                serializer = CartItemSerializer(instance=last_item_in_cart)
+            else:
+                serializer.save(cart=cart)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({
+                "cart_item": serializer.data,
+                "message": "Item Added to cart Successfully",
+                "user_msg": "Item Added to cart Successfully"
+            }, status=status.HTTP_200_OK)
         except Exception as e:
             print(str(e))
             return Response({"message": str(e.args), "user_msg": "Something Went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

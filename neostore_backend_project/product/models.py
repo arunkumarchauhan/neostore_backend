@@ -30,7 +30,8 @@ class Product(TimeStampModel):
 
 
 class ProductImages(TimeStampModel):
-    product = models.ForeignKey(to=Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        to=Product, on_delete=models.CASCADE, related_name='product_images')
     image = models.URLField(blank=False, null=False)
 
     class Meta:
