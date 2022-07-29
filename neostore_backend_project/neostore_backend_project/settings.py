@@ -153,6 +153,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
 
     ),
+    'COERCE_DECIMAL_TO_STRING': False,
+
 }
 
 REST_USE_JWT = True

@@ -108,10 +108,9 @@ class ListCartItemsView(APIView):
             cart = Cart.objects.filter(
                 user__id=request.user.id, bought=False).first()
             if cart == None:
-                return Response({"message": "Your cart is empty"}, status=status.HTTP_200_OK)
+                return Response({"message": "Your cart is empty", "cart_items": [], "cart_id": None}, status=status.HTTP_200_OK)
             cart_items = CartItem.objects.filter(cart=cart)
 
-            data = GetCartSerializer(instance=cart)
             cart_item_serializer = CartItemListSerializer(
                 cart_items, many=True)
             return Response({
