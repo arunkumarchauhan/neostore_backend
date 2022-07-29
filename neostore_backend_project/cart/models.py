@@ -17,7 +17,7 @@ class CartItem(TimeStampModel):
         to='product.Product', on_delete=models.CASCADE, null=False, blank=False)
     quantity = models.IntegerField(null=False, blank=False, default=0)
     cart = models.ForeignKey(
-        Cart, on_delete=models.CASCADE, null=True, blank=False)
+        Cart, on_delete=models.CASCADE, null=True, blank=False, related_name='cart_items')
 
     class Meta:
         db_table = 'cart_item'

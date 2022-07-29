@@ -109,13 +109,10 @@ class ListCartItemsView(APIView):
                 user__id=request.user.id, bought=False).first()
             if cart == None:
                 return Response({"message": "Your cart is empty", "cart_items": [], "cart_id": None}, status=status.HTTP_200_OK)
-            cart_items = CartItem.objects.filter(cart=cart)
 
-            cart_item_serializer = CartItemListSerializer(
-                cart_items, many=True)
-            return Response({
-                "cart_id": cart.id,
-                "cart_items": cart_item_serializer.data}, status=status.HTTP_200_OK)
+            carts = GetCartSerializer(instance=cart)
+
+            return Response(carts.data, status=status.HTTP_200_OK)
         except Exception as e:
             print(str(e))
             return Response({"message": str(e.args), "user_msg": "Something Went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

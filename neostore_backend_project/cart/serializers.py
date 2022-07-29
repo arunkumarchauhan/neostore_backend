@@ -41,8 +41,16 @@ class CartItemListSerializer(serializers.ModelSerializer):
 
 
 class GetCartSerializer(serializers.ModelSerializer):
-    cart = CartItemListSerializer()
+    cart_items = CartItemListSerializer(many=True)
+
+    def to_representation(self, instance):
+        result = super(GetCartSerializer, self).to_representation(instance)
+
+        result["total_amount"] = sum([item["sub_total"]
+                                     for item in result['cart_items']])
+        result['total_quantity'] = len(result['cart_items'])
+        return result
 
     class Meta:
         model = Cart
-        fields = ['id', 'cart']
+        fields = ['id', 'cart_items']
