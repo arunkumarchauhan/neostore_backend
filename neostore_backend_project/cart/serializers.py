@@ -3,7 +3,7 @@ from statistics import mode
 from xml.dom import ValidationErr
 from rest_framework import serializers, viewsets
 
-from product.serializers import GetProductsSerializer
+from product.serializers import GetProductsListSerializer
 from .models import *
 from product.models import Product
 
@@ -26,7 +26,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartItemListSerializer(serializers.ModelSerializer):
-    product = GetProductsSerializer(read_only=True)
+    product = GetProductsListSerializer(read_only=True)
     sub_total = serializers.SerializerMethodField()
 
     def get_sub_total(self, obj):
