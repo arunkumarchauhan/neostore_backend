@@ -25,7 +25,8 @@ router = routers.DefaultRouter()
 urlpatterns = [
     path('api/user/', include("user.urls")),
     path('api/product/', include("product.urls")),
-    path('api/cart/', include("cart.urls"))
+    path('api/cart/', include("cart.urls")),
+    path('api/address/', include("address.urls"))
 
 
     # path('admin/', admin.site.urls),
