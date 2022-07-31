@@ -113,7 +113,9 @@ class AddProductsToDBView(APIView):
             url = "http://staging.php-dev.in:8844/trainingapp/api/products/"
             product_category_id = request.data.get('product_category_id', 0)
             r = requests.get(url+"getList", params={
-                'product_category_id': product_category_id
+                'product_category_id': product_category_id,
+                'limit': 1000,
+                'offset': 0
             })
             for data in r.json()['data']:
                 product_serializer = GetProductsListSerializer(data={
