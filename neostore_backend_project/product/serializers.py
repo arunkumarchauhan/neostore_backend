@@ -1,11 +1,17 @@
 
 from dataclasses import fields
+import os
+from tkinter import Image
+import uuid
 from django.conf import settings
+from django.forms import ImageField
 from rest_framework import serializers, viewsets
 from product.models import ProductImages
 from product.models import ProductCategory
+from django.core.files.base import ContentFile
 
 from product.models import Product
+import requests
 
 
 class GetProductsListSerializer(serializers.ModelSerializer):
@@ -30,6 +36,25 @@ class ProductImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImages
         fields = '__all__'
+
+
+class ProductImageCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductImages
+        fields = ['product', 'image']
+
+    def to_internal_value(self, data):
+        if 'image' in data:
+            url = data['image']
+
+            response = requests.get(url)
+            extension = url.split('.').pop()
+            random_name = uuid.uuid4().hex + '.'+extension
+
+            content_file = ContentFile(response.content, name=random_name)
+            data['image'] = content_file
+        return super(ProductImageCreateSerializer, self).to_internal_value(data)
 
 
 class ProductImageGetSerializer(serializers.ModelSerializer):

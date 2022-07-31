@@ -13,7 +13,9 @@ urlpatterns = [
     path('rating/update', SetProductRating.as_view(),
          name="update_product_rating"),
     path('image/upload', CreateListProductImagesView.as_view(),
-         name="get_add_product_images")
+         name="get_add_product_images"),
+    path('add-to-db', AddProductsToDBView.as_view(),
+         name="add_products_to_db")
 
 
 

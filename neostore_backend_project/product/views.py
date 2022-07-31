@@ -1,7 +1,14 @@
+from django.core.files.base import ContentFile
+from django.core.files.images import ImageFile
+from django.core.files import File
+from tempfile import NamedTemporaryFile
+from urllib.request import urlopen
 from django.shortcuts import render
+from django.db import transaction
 
 # Create your views here.
 from rest_framework.views import APIView
+from product.serializers import ProductImageCreateSerializer
 from product.serializers import CreateProductCategorySerializer, ProductImagesSerializer, GetProductsDetailSerializer
 
 from product.serializers import GetProductsListSerializer
@@ -94,3 +101,47 @@ class GetProductDetailView(APIView):
             return Response({"message": "Invalid Product Id", "user_msg": "Invalid Product Id"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"message": str(e.args), "user_msg": "Something Went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AddProductsToDBView(APIView):
+    permission_classes = []
+    authentication_classes = []
+
+    def post(self, request):
+        try:
+            import requests
+            url = "http://staging.php-dev.in:8844/trainingapp/api/products/"
+            product_category_id = request.data.get('product_category_id', 0)
+            r = requests.get(url+"getList", params={
+                'product_category_id': product_category_id
+            })
+            for data in r.json()['data']:
+                product_serializer = GetProductsListSerializer(data={
+                    "product_category": data['product_category_id'],
+                    **data
+                })
+                with transaction.atomic():
+                    if product_serializer.is_valid():
+                        product_serializer.save()
+                        pd = requests.get(url+"getDetail", params={
+                            'product_id': data['id']
+                        })
+                        pd_data = pd.json()['data']['product_images']
+
+                        for pd_data_item in pd_data:
+                            product_image_serializer = ProductImageCreateSerializer(data={
+                                "product": product_serializer.data.get('id'),
+                                "image":  pd_data_item['image']
+                            })
+
+                            if product_image_serializer.is_valid():
+                                product_image_serializer.save()
+                            else:
+                                print(product_image_serializer.errors)
+                                return Response(product_image_serializer.errors, status=status.HTTP_304_NOT_MODIFIED)
+
+            return Response(r.json(), status=status.HTTP_200_OK)
+        except Exception as e:
+            print("EXCEPTION")
+            print(e)
+            return Response({"message": str(e), "user_msg": "Something Went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
