@@ -1,5 +1,6 @@
 
 from dataclasses import fields
+from django.conf import settings
 from rest_framework import serializers, viewsets
 from product.models import ProductImages
 from product.models import ProductCategory
@@ -31,11 +32,22 @@ class ProductImagesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ProductImageGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImages
+        fields = ['image']
+
+
 class GetProductsDetailSerializer(serializers.ModelSerializer):
     product_images = serializers.SerializerMethodField()
 
     def get_product_images(self, obj):
-        return ProductImages.objects.filter(product_id=obj.id).values_list('image', flat=True)
+        request = self.context.get('request')
+
+        images_list = ProductImages.objects.filter(
+            product_id=obj.id).values_list('image', flat=True)
+        # return [request.build_absolute_uri(settings.MEDIA_URL+image_url) for image_url in images_list]
+        return images_list
 
     class Meta:
         model = Product

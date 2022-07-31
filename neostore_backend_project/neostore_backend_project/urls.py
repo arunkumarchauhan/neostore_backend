@@ -13,10 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from xml.dom.minidom import Document
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
@@ -36,4 +38,4 @@ urlpatterns = [
     # path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls'))
 
 
-]
+]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

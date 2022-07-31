@@ -12,7 +12,7 @@ urlpatterns = [
          name="get_product_category"),
     path('rating/update', SetProductRating.as_view(),
          name="update_product_rating"),
-    path('image/add-url', CreateListProductImagesView.as_view(),
+    path('image/upload', CreateListProductImagesView.as_view(),
          name="get_add_product_images")
 
 

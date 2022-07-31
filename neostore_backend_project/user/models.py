@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 
 from util.models import TimeStampModel
 from util.helper.regex import phoneNumberRegex
+import datetime
 
 # Create your models here.
 
@@ -44,6 +45,11 @@ class CustomUserManager(BaseUserManager):
         return super(CustomUserManager, self).get_queryset()
 
 
+def upload_to(instance, filename):
+    file_name = str(datetime.datetime.now())+filename
+    return 'images/users/{file_name}'.format(file_name=file_name)
+
+
 class User(AbstractBaseUser, TimeStampModel, PermissionsMixin):
     first_name = models.CharField(null=False, blank=False, max_length=254)
     last_name = models.CharField(null=False, blank=False, max_length=254)
@@ -58,7 +64,7 @@ class User(AbstractBaseUser, TimeStampModel, PermissionsMixin):
         ("M", "M"), ("F", "F"), ("T", "T")))
     phone_no = models.CharField(
         validators=[phoneNumberRegex], null=False, blank=False, max_length=15)
-    profile_pic = models.CharField(null=True, blank=True, max_length=1000)
+    profile_pic = models.ImageField(upload_to=upload_to, null=True, blank=True)
     dob = models.DateField(null=False, blank=False)
     country_id = models.IntegerField(null=True, blank=True)
     REQUIRED_FIELDS = ["first_name", "last_name",
